@@ -1,28 +1,29 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
-const path = require('path');
+const { ConvexHttpClient } = require('convex/browser');
+const { anyApi } = require('convex/server');
+
 const router = express.Router();
 
-const adminFilePath = path.join(__dirname, '../data/admin.json');
-
-// Ensure data directory exists
-if (!fs.existsSync(path.dirname(adminFilePath))) {
-  fs.mkdirSync(path.dirname(adminFilePath), { recursive: true });
-}
+const client = new ConvexHttpClient(process.env.CONVEX_URL);
 
 async function getAdminUser() {
-  if (fs.existsSync(adminFilePath)) {
-    const data = fs.readFileSync(adminFilePath, 'utf8');
-    return JSON.parse(data);
+  let adminUser = await client.query(anyApi.users.getAdmin);
+  
+  if (adminUser) {
+    return adminUser;
   } else {
-    // No admin yet — seed with default credentials.
-    // After first login, change these via the Settings page.
+    // No admin yet — seed with default credentials in Convex.
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync('admin123', salt);
     const defaultAdmin = { username: 'admin', passwordHash: hashedPassword };
-    fs.writeFileSync(adminFilePath, JSON.stringify(defaultAdmin, null, 2), 'utf8');
+    
+    await client.mutation(anyApi.users.initAdmin, {
+      username: defaultAdmin.username,
+      passwordHash: hashedPassword
+    });
+    
     return defaultAdmin;
   }
 }
@@ -36,7 +37,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Username and password are required.' });
     }
 
-    // Get admin user from local file
+    // Get admin user from Convex DB
     const adminUser = await getAdminUser();
 
     // Check credentials
@@ -112,12 +113,14 @@ router.put('/update', verifyToken, async (req, res) => {
       return res.status(401).json({ message: 'Invalid current password.' });
     }
 
-    // Update credentials
+    // Update credentials in Convex DB
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     
-    const updatedAdmin = { username: newUsername, passwordHash: hashedPassword };
-    fs.writeFileSync(adminFilePath, JSON.stringify(updatedAdmin, null, 2), 'utf8');
+    await client.mutation(anyApi.users.updateAdmin, {
+      username: newUsername,
+      passwordHash: hashedPassword
+    });
 
     res.json({ success: true, message: 'Credentials updated successfully' });
   } catch (error) {
