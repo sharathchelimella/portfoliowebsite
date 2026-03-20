@@ -18,8 +18,14 @@ const Contact = () => {
     }
     setSending(true);
     try {
+      let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      // Automatically add /api if the user forgot it
+      if (!baseUrl.endsWith('/api') && !baseUrl.includes('localhost')) {
+         baseUrl = baseUrl.endsWith('/') ? `${baseUrl}api` : `${baseUrl}/api`;
+      }
+      
       // Call Express backend which sends real email via nodemailer
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/contact/message`, {
+      const res = await fetch(`${baseUrl}/contact/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

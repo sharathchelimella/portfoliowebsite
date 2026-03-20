@@ -15,7 +15,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/login`, {
+      let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      // Automatically add /api if the user forgot it in their Vercel environment variables
+      if (!baseUrl.endsWith('/api') && !baseUrl.includes('localhost')) {
+         baseUrl = baseUrl.endsWith('/') ? `${baseUrl}api` : `${baseUrl}/api`;
+      }
+      
+      const res = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -38,7 +44,13 @@ export const AuthProvider = ({ children }) => {
   const updateCredentials = async (currentPassword, newUsername, newPassword) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/update`, {
+      let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      // Automatically add /api if the user forgot it
+      if (!baseUrl.endsWith('/api') && !baseUrl.includes('localhost')) {
+         baseUrl = baseUrl.endsWith('/') ? `${baseUrl}api` : `${baseUrl}/api`;
+      }
+
+      const res = await fetch(`${baseUrl}/auth/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
