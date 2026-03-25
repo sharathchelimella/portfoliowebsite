@@ -42,7 +42,7 @@
 
 ## 🌟 Overview
 
-This is a **full-stack personal portfolio website** for Swaraj Babu Vecha. It is fully dynamic — all content (hero text, skills, projects, education, training, certificates, contact info, resume, and footer) is managed through a private **Admin Panel** and stored in **Convex** (a real-time cloud database). The site reflects changes instantly without requiring a redeploy.
+This is a **full-stack personal portfolio website** for Sharath Kumar Chelimella. It is fully dynamic — all content (hero text, skills, projects, education, training, certificates, contact info, resume, and footer) is managed through a private **Admin Panel** and stored in **Convex** (a real-time cloud database). The site reflects changes instantly without requiring a redeploy.
 
 The backend is a lightweight **Node.js + Express** server that handles admin authentication (JWT), contact form emails (Nodemailer), and bridges some data to Convex. The frontend is a **React + Vite** single-page application styled with **Tailwind CSS** and animated with **Framer Motion**.
 
