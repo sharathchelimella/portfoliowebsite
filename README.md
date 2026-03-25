@@ -1,4 +1,4 @@
-# 🚀 Swaraj's MERN + Convex Portfolio
+# 🚀 Sharath's + Convex Portfolio
 
 <div align="center">
 
